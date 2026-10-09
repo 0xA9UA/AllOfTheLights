@@ -1,0 +1,955 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#08090f"><meta name="description" content="Fullscreen, bass-reactive visuals for the music playing on your Mac. Connect live system audio through BlackHole.">
+  <title>PULSE — Live Audio Visualizer</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2216%22%20fill%3D%22%230b0b13%22%2F%3E%3Cpath%20d%3D%22M9%2034h11l7-21%2012%2039%206-18h10%22%20stroke%3D%22%23b99aff%22%20stroke-width%3D%225%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E%0A" type="image/svg+xml"><style>
+:root{color-scheme:dark;--bg:#08090f;--text:#f2f1fa;--muted:#92939f;--border:rgba(192,183,230,.12);--accent:#b9a0fc;--cyan:#6ae4eb;font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-synthesis:none}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);height:100dvh;min-height:520px;overflow:hidden}button,input,select{font:inherit}button,a,input,select{-webkit-tap-highlight-color:transparent}button,a{touch-action:manipulation}button{cursor:pointer;color:inherit}button:disabled{cursor:wait;opacity:.5}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--cyan);outline-offset:4px}button{border:none}svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}a{color:inherit}#visualizer{position:fixed;inset:0;width:100%;height:100%;display:block}.grain{position:fixed;inset:0;pointer-events:none;opacity:.035;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' opacity='.8' filter='url(%23n)'/%3E%3C/svg%3E")}.chrome{position:fixed;transition:opacity .35s,transform .35s}.topbar{top:0;left:0;right:0;height:92px;padding:0 36px;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(#08090fd9,#08090f00);z-index:3}.brand{display:flex;align-items:center;gap:11px;text-decoration:none}.brand svg{width:31px;height:31px;color:var(--accent);stroke:none}.brand>span:first-of-type{font-size:22px;letter-spacing:4px;font-weight:750}.brand-detail{font-size:9px;letter-spacing:2px;color:var(--muted);border-left:1px solid var(--border);padding-left:16px;margin-left:8px}.header-actions{display:flex;align-items:center;gap:12px}.status{display:flex;align-items:center;gap:8px;font-size:11px;color:#a2a0b0;margin-right:8px}.status-dot,.tiny-dot{display:inline-block;width:5px;height:5px;flex-shrink:0;border-radius:50%;background:#a192bc}.status.live .status-dot{background:#77edc0;box-shadow:0 0 10px #77edc066}.status.live{color:#acecd5}.status.waiting .status-dot{background:#e4c280}.status.error .status-dot{background:#fc9c9c}.button{display:inline-flex;align-items:center;justify-content:center;gap:9px;background:#13141c;border:1px solid var(--border);padding:11px 15px;border-radius:9px;font-size:12px;white-space:nowrap;transition:background .2s,border-color .2s}.button:hover{background:#20202e;border-color:#75678e}.source-button{background:#201a32;border-color:#4d3d68;color:#dcc9ff}.fullscreen-button{background:rgba(12,13,20,.55)}.icon-button{display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;font-size:25px;background:transparent;border-radius:8px;color:#a1a0af;line-height:1}.icon-button:hover{background:#242332;color:#fff}.icon-button.small{width:26px;height:26px}.stage-caption{top:126px;left:40px}.eyebrow{display:flex;align-items:center;gap:8px;font-size:9px;letter-spacing:2.3px;font-weight:600;color:var(--accent)}.stage-caption h1{margin:13px 0 8px;font-size:25px;font-weight:500;letter-spacing:-.6px}.stage-caption p{font-size:12px;color:#888996;margin:0;letter-spacing:.1px}.stage-index{right:41px;top:141px;display:flex;gap:12px;align-items:center;font-size:10px;letter-spacing:1px;color:#646575}.stage-index>span:first-child{color:#cfbedf}.stage-index div{width:55px;height:1px;background:#47414e}.source-card{left:40px;bottom:119px;width:350px;padding:16px 17px 13px;border:1px solid var(--border);border-radius:13px;background:#0c0c16a8;backdrop-filter:blur(20px)}.source-card-top{display:flex;align-items:center;gap:10px}.source-icon{width:29px;color:#ae9fca}.source-card strong{font-size:11px;font-weight:500;display:block}.source-card p{font-size:10px;color:#878796;margin:6px 0 0;line-height:1.5}.arrow-button{margin-left:auto;align-self:start;background:none;font-size:21px;color:#ac9ccc}.meters{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:19px}.meters span{display:block;font-size:8px;letter-spacing:1px;color:#c1bccc}.meters small{font-size:7px;letter-spacing:0;color:#686774;display:block;margin-top:5px}.meter-track{height:3px;background:#242131;border-radius:3px;overflow:hidden;margin-top:9px}.meter-track i{height:100%;width:0;display:block;background:linear-gradient(90deg,#9679dd,#c0a3ff);transition:width .1s;border-radius:3px}.meters>div:nth-child(2) i{background:linear-gradient(90deg,#6965ce,#ad98f2)}.meters>div:nth-child(3) i{background:linear-gradient(90deg,#398fa7,#6ae4eb)}.meter-notice{display:block;margin-top:13px;font-size:7px;letter-spacing:1.6px;color:#777080}.bottom-bar{z-index:3;bottom:0;left:0;right:0;height:93px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 38px;background:#0a0a12d9;backdrop-filter:blur(25px)}.scenes{display:flex;gap:5px}.scene{display:flex;align-items:center;gap:11px;border:1px solid transparent;border-radius:10px;padding:9px 12px;background:transparent;color:#94919f;min-width:127px;font-size:12px;transition:all .2s}.scene:hover{color:#dfd6ee;background:#17131f}.scene.active{color:#e5d7ff;background:#241c35;border-color:#57416f}.scene-art{width:30px;height:30px;display:flex;align-items:center;justify-content:center;color:#9a86bc}.orbit-art{border:1px solid currentColor;border-radius:50%;width:22px;height:22px;margin:4px;box-shadow:0 0 0 3px #9980ba15}.spectrum-art{font-size:18px;letter-spacing:-3px}.tunnel-art{font-size:33px;font-weight:200}.wave-art{font-size:36px}.scene kbd{font:9px inherit;color:#6d637b;margin-left:auto;border:1px solid #49405055;border-radius:3px;padding:2px 4px}.scene.active kbd{color:#ae96ca}.bottom-actions{display:flex;align-items:center;gap:15px}.text-button{background:transparent;color:#a496b8;font-size:11px;padding:6px 0}.text-button:hover{color:#e4c9ff}.demo-button{display:flex;align-items:center;gap:7px}.demo-button[aria-pressed=true] .tiny-dot{background:#b9a0fc;box-shadow:0 0 8px #b9a0fc44}.divider{height:20px;width:1px;background:var(--border)}.tune-button{border-color:transparent;background:transparent;padding:8px}.tune-button svg circle{fill:#0e0e19}.tune-panel{z-index:5;right:40px;bottom:111px;width:277px;padding:21px;background:#11111ceb;border:1px solid #3d314e;border-radius:14px;backdrop-filter:blur(25px);box-shadow:0 10px 70px #0008}.panel-heading{display:flex;justify-content:space-between;align-items:center;margin-bottom:26px}.panel-heading h2{font-size:14px;font-weight:500;margin:0}.range-label{display:flex;justify-content:space-between;font-size:11px;color:#bdb6c9;margin:20px 0 11px}.range-label output{color:#a98adb;font-size:10px}input[type=range]{display:block;width:100%;height:3px;accent-color:#b294e1;margin:10px 0 25px;cursor:pointer}.control-label{font-size:10px;color:#b2a7c2;display:block;margin:19px 0 9px}select,input[type=text]{color:#d5cfdf;background:#1b1825;border:1px solid #3a3148;border-radius:7px;padding:10px 11px;width:100%;font-size:11px;min-height:36px}select{cursor:pointer}.panel-note{font-size:9px;color:#777180;line-height:1.8;margin:19px 0 5px}.toast{position:fixed;z-index:15;bottom:108px;left:50%;transform:translateX(-50%);max-width:80vw;color:#e4d4fc;background:#231b32e8;backdrop-filter:blur(20px);border:1px solid #5e4179;border-radius:9px;font-size:11px;padding:12px 17px;line-height:1.5;text-align:center}.hidden-hint{display:none;position:fixed;bottom:20px;left:0;right:0;text-align:center;color:#8d80a2;font-size:10px;letter-spacing:.6px;pointer-events:none}body.controls-hidden .chrome{opacity:0;pointer-events:none;transform:translateY(6px)}body.controls-hidden{cursor:none}body.controls-hidden .hidden-hint{display:block;animation:fadeHint 4s forwards}@keyframes fadeHint{0%,50%{opacity:.75}100%{opacity:0}}dialog{color:var(--text);background:#11111c;border:1px solid #493659;border-radius:19px;width:min(490px,calc(100vw - 32px));padding:27px;box-shadow:0 25px 180px #000c;max-height:90dvh;overflow:auto}dialog::backdrop{background:#05050abb;backdrop-filter:blur(13px)}.dialog-heading{display:flex;align-items:center;justify-content:space-between}.dialog-heading .icon-button{margin-top:-8px;margin-right:-8px}dialog h2{font-weight:500;font-size:29px;letter-spacing:-.8px;margin:16px 0 13px}.dialog-intro{font-size:12px;color:#9d94aa;line-height:1.8;margin-bottom:20px}.dialog-intro strong{font-weight:500;color:#d0b8ed}.route-diagram{display:flex;align-items:center;gap:10px;padding:16px;background:#191323;border:1px solid #372c46;border-radius:10px;font-size:11px;color:#cabadd}.route-diagram>div{display:flex;flex-direction:column;gap:13px}.route-diagram small{display:block;color:#7c6c90;font-size:9px;margin-top:3px}.route-arrow{font-size:22px;color:#84629e;margin:0 6px}.setup-note{font-size:10px;color:#9d8daf;margin:18px 0 23px}.setup-note a{color:#bd9fe4;text-decoration:none;border-bottom:1px solid #bd9fe444;padding-bottom:2px}.primary{background:#b49add;color:#181022;border-color:#c4a9e8;width:100%;font-weight:650;font-size:12px;padding:13px;justify-content:space-between}.primary:hover{background:#c3a9ec;color:#120c1c}.fine-print{font-size:10px;line-height:1.8;color:#777080;margin:13px 1px}.label-with-action{display:flex;align-items:center;justify-content:space-between;font-size:11px;color:#b7a6cb;margin-bottom:8px}.device-hint{font-size:10px;color:#9d8dad;line-height:1.7;margin:12px 0 17px}.error{font-size:11px;line-height:1.7;background:#371e28;border:1px solid #653144;color:#ffb5c6;padding:12px;border-radius:8px}.disconnect{color:#d294b4;margin:12px 0 0}.dialog-footer{border-top:1px solid #2c2336;padding-top:16px;margin-top:20px;font-size:9px;color:#7e708e;display:flex;gap:7px;align-items:center}.dialog-footer .tiny-dot{background:#79bdaa}body.frozen #statusText::after{content:' · visuals frozen'}[hidden]{display:none!important}@media(min-width:1600px){.topbar{padding:0 55px}.stage-caption,.source-card{left:58px}.bottom-bar{padding:0 55px}.source-card{bottom:126px}}@media(max-width:1000px){.brand-detail{display:none}.topbar{padding:0 24px}.stage-caption{left:28px}.stage-index{right:28px}.source-card{left:28px;width:306px}.bottom-bar{padding:0 22px}.scene{min-width:104px;padding:8px;gap:7px}.scene kbd{display:none}.bottom-actions{gap:9px}.status{font-size:10px}.fullscreen-button span{display:none}.tune-panel{right:26px}}@media(max-width:700px){.topbar{height:76px;padding:0 16px}.brand>span:first-of-type{font-size:16px;letter-spacing:3px}.brand svg{width:25px}.brand{gap:6px}.header-actions{gap:5px}.status{position:fixed;top:85px;right:19px;margin:0;font-size:9px}.source-button{padding:9px 10px;font-size:10px}.source-button svg{width:16px}.header-actions>.icon-button{width:30px}.fullscreen-button{padding:9px}.stage-caption{top:90px;left:20px}.stage-caption .eyebrow{font-size:7px;letter-spacing:1.7px}.stage-caption h1{font-size:18px;margin:12px 0 6px}.stage-caption p{font-size:9px}.stage-index{display:none}.source-card{bottom:142px;left:20px;width:270px;padding:13px;background:#0c0c1694}.source-card strong{font-size:10px}.source-card p{font-size:9px}.meters{margin-top:12px;gap:10px}.source-icon{width:20px}.bottom-bar{height:125px;display:block;padding:12px 13px}.scenes{justify-content:center;gap:5px}.scene{min-width:0;padding:7px 9px;font-size:10px;gap:6px}.scene-art{width:22px;height:22px}.orbit-art{width:17px;height:17px;margin:3px}.tunnel-art{font-size:27px}.wave-art{font-size:30px}.spectrum-art{font-size:15px}.bottom-actions{justify-content:center;margin-top:10px;gap:17px}.bottom-actions .icon-button{height:29px}.tune-panel{right:16px;bottom:138px;max-height:calc(100dvh - 225px);overflow:auto}.toast{bottom:143px}.brand-detail{display:none}}@media(max-height:680px) and (min-width:701px){.topbar{height:73px}.stage-caption{top:94px}.stage-caption h1{font-size:20px}.source-card{width:285px;bottom:104px}.source-card .meters{margin-top:12px}.bottom-bar{height:82px}.tune-panel{max-height:calc(100dvh - 105px);overflow:auto;bottom:95px}.source-card small{display:none}}@media(prefers-reduced-motion:reduce){*{transition:none!important}.hidden-hint{animation:none!important}}
+
+</style>
+</head>
+<body>
+  <canvas id="visualizer" aria-label="Audio reactive visualization"></canvas>
+  <div class="grain" aria-hidden="true"></div>
+  <header class="chrome topbar">
+    <a href="#" class="brand" aria-label="PULSE home"><svg viewBox="0 0 30 30" fill="none" aria-hidden="true"><path d="M3 16h5l3-10 6 20 3-10h7" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/></svg><span>PULSE</span><span class="brand-detail">AUDIO / VISUAL</span></a>
+    <div class="header-actions">
+      <span id="status" class="status preview"><span class="status-dot"></span><span id="statusText">Preview · no live audio</span></span>
+      <button id="audioButton" class="button source-button"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 8v4m4-7v10m3-13v16m3-13v10m4-7v4"/></svg><span>Connect audio</span></button>
+      <button id="setupButton" class="icon-button" aria-label="Open Mac audio setup guide" title="Mac audio setup"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="M8 7a2 2 0 1 1 3 2c-1 .6-1 1-1 2m0 3v.1"/></svg></button>
+      <button id="fullscreenButton" class="button fullscreen-button" title="Fullscreen (F)"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M7 3H3v4m10-4h4v4M3 13v4h4m10-4v4h-4"/></svg><span>Enter fullscreen</span></button>
+    </div>
+  </header>
+  <main>
+    <div class="chrome stage-caption"><span class="eyebrow"><span class="tiny-dot"></span> SOUND IN MOTION</span><h1 id="sceneTitle">Orbital spectrum</h1><p id="sceneDescription">Every frequency. One beautiful orbit.</p></div>
+    <div class="chrome stage-index" aria-hidden="true"><span id="sceneNumber">01</span><div></div><span>04</span></div>
+    <aside id="tunePanel" class="chrome tune-panel" hidden aria-labelledby="tuneTitle">
+      <div class="panel-heading"><h2 id="tuneTitle">Shape the feeling</h2><button id="closeTune" class="icon-button small" aria-label="Close tuning">×</button></div>
+      <label class="range-label" for="gain">Sensitivity <output id="gainValue">1.4×</output></label><input id="gain" type="range" min="0.4" max="3" step="0.1" value="1.4">
+      <label class="range-label" for="bassBoost">Bass impact <output id="bassBoostValue">1.5×</output></label><input id="bassBoost" type="range" min="0.5" max="3" step="0.1" value="1.5">
+      <label class="range-label" for="motion">Motion <output id="motionValue">100%</output></label><input id="motion" type="range" min="0" max="1" step="0.05" value="1">
+      <label class="control-label" for="palette">Color palette</label><select id="palette"><option value="aurora">Aurora · violet & cyan</option><option value="ember">Ember · coral & gold</option><option value="glacier">Glacier · ice & blue</option></select>
+      <label class="control-label" for="quality">Render quality</label><select id="quality"><option value="high">High · 60 fps target</option><option value="balanced">Balanced · 30 fps target</option></select>
+      <label class="control-label" for="label">Center title</label><input id="label" type="text" value="PULSE" maxlength="24" autocomplete="off" spellcheck="false">
+      <p class="panel-note">Settings stay on this browser.<br>Motion at 0 keeps audio response, with calmer movement.</p>
+      <button id="resetSettings" class="text-button">Reset settings ↺</button>
+    </aside>
+    <section class="chrome source-card" aria-label="Audio source status">
+      <div class="source-card-top"><span class="source-icon"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M6 14V7a4 4 0 0 1 8 0v7M6 9H4v5h3V9m7 0h2v5h-3V9"/></svg></span><div><strong id="sourceTitle">Your music, amplified visually.</strong><p id="sourceDetail">Connect BlackHole to follow your Mac’s live audio.</p></div><button id="cardConnect" class="arrow-button" aria-label="Connect live audio"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 15 10-10M5 5h10v10"/></svg></button></div>
+      <div class="meters" aria-label="Frequency levels"><div><span>BASS <small>25–180 Hz</small></span><div class="meter-track"><i id="bassMeter"></i></div></div><div><span>MID <small>180 Hz–2.5 kHz</small></span><div class="meter-track"><i id="midMeter"></i></div></div><div><span>HIGH <small>2.5–16 kHz</small></span><div class="meter-track"><i id="highMeter"></i></div></div></div>
+      <span id="meterNotice" class="meter-notice">SIMULATED PREVIEW</span>
+    </section>
+    <p id="toast" class="toast" role="status" hidden></p>
+  </main>
+  <footer class="chrome bottom-bar">
+    <nav class="scenes" aria-label="Visualization scene">
+      <button class="scene active" data-scene="orbit" aria-pressed="true"><span class="scene-art orbit-art"></span><span>Orbit</span><kbd>1</kbd></button>
+      <button class="scene" data-scene="spectrum" aria-pressed="false"><span class="scene-art spectrum-art"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17v-4m4 4V9m5 8V5m5 12v-7m4 7V8" stroke-width="2.5"/></svg></span><span>Spectrum</span><kbd>2</kbd></button>
+      <button class="scene" data-scene="tunnel" aria-pressed="false"><span class="scene-art tunnel-art">◎</span><span>Tunnel</span><kbd>3</kbd></button>
+      <button class="scene" data-scene="waveform" aria-pressed="false"><span class="scene-art wave-art">∿</span><span>Waveform</span><kbd>4</kbd></button>
+    </nav>
+    <div class="bottom-actions"><button id="demoButton" class="text-button demo-button" aria-pressed="true"><span class="tiny-dot"></span><span>Preview on</span></button><span class="divider"></span><button id="tuneButton" class="button tune-button" aria-expanded="false"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14"/><circle cx="7" cy="5" r="2"/><circle cx="13" cy="10" r="2"/><circle cx="8" cy="15" r="2"/></svg><span>Tune</span></button><button id="hideButton" class="icon-button" aria-label="Hide controls (H)" title="Hide controls (H)"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M2 10s3-5 8-5 8 5 8 5-3 5-8 5-8-5-8-5Z"/><circle cx="10" cy="10" r="2"/><path d="m3 17 14-14"/></svg></button></div>
+  </footer>
+  <div id="hiddenHint" class="hidden-hint">Move the pointer to show controls · F fullscreen · 1–4 scenes</div>
+  <dialog id="audioDialog" aria-labelledby="audioTitle">
+    <div class="dialog-heading"><span class="eyebrow">LIVE AUDIO INPUT</span><button id="closeAudio" class="icon-button" aria-label="Close audio connection">×</button></div>
+    <h2 id="audioTitle">Connect to the music.</h2><p class="dialog-intro">Capture the same audio playing through your Mac’s headphone jack with <strong>BlackHole 2ch</strong>.</p>
+    <div class="route-diagram"><span>Music on your Mac</span><span class="route-arrow">→</span><div><span>Headphone jack <small>your speakers</small></span><span>BlackHole 2ch <small>live visuals</small></span></div></div>
+    <p class="setup-note">First time? <a href="README.html" target="_blank" rel="noopener">Follow the 5-minute Mac setup ↗</a></p>
+    <div id="permissionStep"><button id="permissionButton" class="button primary">Enable audio access <span>→</span></button><p class="fine-print">Allow the browser’s microphone permission to see audio inputs. Your audio stays in this browser.</p></div>
+    <div id="deviceStep" hidden><div class="label-with-action"><label for="device">Input device</label><button id="refreshDevices" class="text-button">Refresh ↻</button></div><select id="device"></select><p id="deviceHint" class="device-hint"></p><button id="startAudio" class="button primary">Start live audio <span>→</span></button></div>
+    <p id="audioError" class="error" role="alert" hidden></p><button id="disconnectAudio" class="text-button disconnect" hidden>Disconnect audio</button>
+    <div class="dialog-footer"><span class="tiny-dot"></span> Audio is analyzed locally. No recording or upload.</div>
+  </dialog>
+  <script>
+(()=>{
+"use strict";
+const SETUP_HTML = "<!doctype html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <meta name=\"color-scheme\" content=\"dark\">\n  <title>Audio Visualizer — Mac setup<\/title>\n  <style>\n    :root{--bg:#090a12;--panel:#111420;--line:#293046;--text:#e9edf9;--muted:#a9b3c9;--mint:#82f6d2;--violet:#baadff}\n    *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 75% 0,#251d43 0,transparent 38%),var(--bg);color:var(--text);font:16px/1.65 -apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif}\n    main{max-width:920px;margin:auto;padding:56px 28px 80px}header{border-bottom:1px solid var(--line);padding-bottom:32px;margin-bottom:32px}.eyebrow{font:600 12px/1.4 ui-monospace,monospace;letter-spacing:.18em;color:var(--mint);text-transform:uppercase}\n    h1{font-size:clamp(36px,6vw,56px);line-height:1.08;letter-spacing:-.05em;margin:18px 0}h2{font-size:25px;letter-spacing:-.03em;margin:0 0 12px}h3{font-size:18px;margin:20px 0 6px}p{margin:12px 0}.lead{max-width:710px;color:var(--muted);font-size:19px}.meta{color:var(--muted);font-size:13px}\n    a{color:var(--mint);text-underline-offset:4px}a:hover{color:white}section{margin-top:36px}.step{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px;margin-top:18px}.number{display:inline-block;width:28px;height:28px;margin-right:10px;border:1px solid #597b75;border-radius:50%;color:var(--mint);text-align:center;font-size:15px;vertical-align:2px}\n    ol,ul{padding-left:24px}li{margin:9px 0}strong{font-weight:650}code,kbd{font:14px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace}code{color:var(--mint)}pre{background:#090b13;border:1px solid var(--line);border-radius:10px;padding:16px;overflow:auto}pre code{color:var(--text)}kbd{background:#22293a;border:1px solid #424b62;border-bottom-width:2px;padding:2px 7px;border-radius:5px}\n    .note{padding:15px 18px;border-left:3px solid var(--violet);background:#19182b;border-radius:0 8px 8px 0;font-size:14px;color:#d0ccef}.routing{display:grid;grid-template-columns:1fr auto 1.3fr auto 1.6fr;gap:12px;align-items:center;margin:24px 0;font-size:14px}.node{border:1px solid var(--line);padding:15px 12px;border-radius:10px;text-align:center;background:#0e111c}.node b{display:block}.node span{color:var(--muted);font-size:12px}.arrow{color:var(--mint);font-size:22px}.outputs{display:grid;gap:10px}.outputs .node:first-child{border-color:#55786e}.outputs .node:last-child{border-color:#69608d}\n    table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px}th,td{padding:12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}th{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.04em}td:first-child{width:26%;font-weight:650}footer{border-top:1px solid var(--line);margin-top:40px;padding-top:20px;color:var(--muted);font-size:13px}.back{display:inline-block;text-decoration:none;border:1px solid var(--line);border-radius:8px;padding:9px 14px;font-size:14px;margin-top:10px}.checklist{list-style:none;padding-left:0}.checklist li:before{content:\"□\";color:var(--mint);margin-right:10px}\n    @media(max-width:620px){main{padding:32px 18px 48px}.step{padding:20px 16px}.routing{grid-template-columns:1fr;gap:7px}.arrow{transform:rotate(90deg);text-align:center}.outputs{grid-template-columns:1fr}.lead{font-size:17px}td,th{padding:10px 5px}}\n    @media print{body{background:white;color:#111}main{padding:0}.step,.node,.note,pre{background:white;color:#111}a,code,.eyebrow{color:#145748}.back{display:none}}\n  <\/style>\n<\/head>\n<body>\n<main>\n  <header>\n    <div class=\"eyebrow\">Audio Visualizer / Setup guide<\/div>\n    <h1>Your music.<br>Your speakers.<br>Live visuals.<\/h1>\n    <p class=\"lead\">Route the same music to your MacBook’s audio jack and a virtual audio input. The browser reads that input and reacts to the bass, mids and highs in real time.<\/p>\n    <p class=\"meta\">For MacBook Pro · M1 Pro · macOS Sequoia 15.6.1 · Python 3 · Chrome recommended<\/p>\n    <p class=\"back\">Close this guide tab to return to the visualizer.<\/p>\n  <\/header>\n\n  <section aria-labelledby=\"routing-title\">\n    <h2 id=\"routing-title\">How the audio reaches the screen<\/h2>\n    <p>A browser cannot directly read the Mac’s headphone output. <strong>BlackHole 2ch<\/strong> supplies a virtual input; a macOS <strong>Multi-Output Device<\/strong> sends identical audio to that input and the physical jack.<\/p>\n    <div class=\"routing\" aria-label=\"Music app to Multi-Output Device, then simultaneously to External Headphones and BlackHole 2ch to browser\">\n      <div class=\"node\"><b>Music app<\/b><span>Your normal playback<\/span><\/div>\n      <div class=\"arrow\" aria-hidden=\"true\">→<\/div>\n      <div class=\"node\"><b>Multi-Output Device<\/b><span>macOS duplicates the audio<\/span><\/div>\n      <div class=\"arrow\" aria-hidden=\"true\">→<\/div>\n      <div class=\"outputs\">\n        <div class=\"node\"><b>External Headphones → speakers<\/b><span>Your wired party audio<\/span><\/div>\n        <div class=\"node\"><b>BlackHole 2ch → browser<\/b><span>Audio analysis and live visuals<\/span><\/div>\n      <\/div>\n    <\/div>\n    <p class=\"note\">The visualizer does not replay the captured music through the speakers. The browser’s “microphone” permission grants access to BlackHole’s virtual input. Audio analysis stays in the browser. PULSE.html contains the app and setup guide; it needs no website, account, or external service.<\/p>\n  <\/section>\n\n  <section aria-labelledby=\"setup-title\">\n    <h2 id=\"setup-title\">Set up once<\/h2>\n    <div class=\"step\">\n      <h2><span class=\"number\">1<\/span>Install BlackHole 2ch<\/h2>\n      <ol>\n        <li>Download the <strong>2-channel<\/strong> macOS installer from the <a href=\"https://existential.audio/blackhole/\" target=\"_blank\" rel=\"noopener noreferrer\">official BlackHole site<\/a>. It supports Apple Silicon. The driver is installed separately and is not bundled with this app.<\/li>\n        <li>Close your audio applications, run the installer, and restart your Mac if prompted.<\/li>\n        <li>Open <strong>Audio MIDI Setup<\/strong> with Spotlight. Select <strong>Window → Show Audio Devices<\/strong> if the device list is hidden. Confirm <strong>BlackHole 2ch<\/strong> appears.<\/li>\n      <\/ol>\n      <p class=\"meta\">Already use Homebrew? The official alternative is <code>brew install blackhole-2ch<\/code>. No Python packages are needed.<\/p>\n    <\/div>\n\n    <div class=\"step\">\n      <h2><span class=\"number\">2<\/span>Keep the speakers connected<\/h2>\n      <ol>\n        <li><strong>Plug the speaker cable into the MacBook’s headphone jack first.<\/strong> In Audio MIDI Setup the physical output usually appears as <strong>External Headphones<\/strong>; the name may vary. Use the output corresponding to the jack, not HDMI or the built-in speakers.<\/li>\n        <li>Select the physical output and set its <strong>Format<\/strong> sample rate to <strong>48,000 Hz<\/strong>. Select BlackHole 2ch and set it to <strong>48,000 Hz<\/strong> too. Keep each device’s supported bit depth.<\/li>\n        <li>Click <strong>+<\/strong> at the lower left and choose <strong>Create Multi-Output Device<\/strong>. Rename it <strong>Party Output<\/strong>.<\/li>\n        <li>Enable <strong>Use<\/strong> for only the physical headphone output and <strong>BlackHole 2ch<\/strong>. Choose the physical output as <strong>Primary Device<\/strong> (also called Master Device or Clock Source). It should be listed first. If needed, deselect the devices and select the physical output first, then BlackHole.<\/li>\n        <li>Enable <strong>Drift Correction<\/strong> for BlackHole 2ch. Leave it disabled for the physical primary device. Confirm the Multi-Output Device also shows 48,000 Hz.<\/li>\n        <li>Open <strong>System Settings → Sound → Output<\/strong> and select <strong>Party Output<\/strong>. If your DJ or music app chooses its own output device, set that app to Party Output too.<\/li>\n      <\/ol>\n      <p class=\"note\">Multi-Output Devices disable the normal macOS volume keys. Start with your speaker/amplifier volume low, then adjust the music app or physical device volume in Audio MIDI Setup. Keep the cable connected while using this configuration.<\/p>\n    <\/div>\n\n    <div class=\"step\">\n      <h2><span class=\"number\">3<\/span>Open the single HTML file<\/h2>\n      <ol>\n        <li>Save <strong>PULSE.html<\/strong> on your Mac. If using the full ZIP package, extract it first.<\/li>\n        <li>In Finder, right-click <code>PULSE.html<\/code> and choose <strong>Open With → Google Chrome<\/strong>. The visuals, controls, and setup guide are all included in this one file.<\/li>\n        <li>Continue to step 4 and grant audio access. Chrome normally allows audio capture from a local file. If your browser blocks capture or does not offer permissions, use the optional Python launcher below.<\/li>\n      <\/ol>\n      <p>After installing BlackHole and a browser, the visualizer works offline, including for locally stored music. No Python packages, web hosting, remote scripts, or downloads are needed to run PULSE.html.<\/p>\n      <h3>Optional: local Python launcher<\/h3>\n      <p>The full package includes a Python fallback. Keep <code>launch.py<\/code> beside <code>PULSE.html<\/code>. Open Terminal and type <code>cd<\/code> followed by a space. Drag the extracted <code>audio-visualizer<\/code> folder into Terminal and press Return. Then run:<\/p>\n      <pre><code>python3 launch.py<\/code><\/pre>\n      <p>The launcher opens Chrome when installed, otherwise your default browser. It prints a local address such as <code>http://127.0.0.1:8765/PULSE.html<\/code>; if a port is occupied it selects another. It listens only on your Mac. Keep this Terminal window open.<\/p>\n      <p><strong>Double-click alternative:<\/strong> open <code>Start Visualizer.command<\/code>. This convenience launcher is macOS-specific and needs an executable file permission. If macOS refuses to open it, use <code>python3 launch.py<\/code> in Terminal. To restore its executable permission, run <code>chmod +x \"Start Visualizer.command\"<\/code> from the extracted folder. Do not disable macOS security settings.<\/p>\n      <p class=\"meta\">To print the address without opening a browser, use <code>python3 launch.py --no-browser<\/code>. Open the printed address in Chrome. The launcher also supports the separate source-file version of this app.<\/p>\n    <\/div>\n\n    <div class=\"step\">\n      <h2><span class=\"number\">4<\/span>Connect live audio<\/h2>\n      <ol>\n        <li>In the visualizer, click <strong>Connect audio<\/strong>, then <strong>Enable audio access<\/strong>. Allow microphone access when the browser and macOS ask.<\/li>\n        <li>In <strong>Input device<\/strong>, choose <strong>BlackHole 2ch<\/strong>, then click <strong>Start live audio<\/strong>. Choose the named device explicitly.<\/li>\n        <li>Start music in your normal music app. Confirm the speakers play and the on-screen <strong>Bass / Mid / High<\/strong> meters respond.<\/li>\n        <li>If using a projector or external screen, move the browser window to that display first. Connect the display before selecting Party Output so HDMI does not become the audio output. Click <strong>Enter fullscreen<\/strong> or press <kbd>F<\/kbd>. Move your pointer to reveal controls; press <kbd>H<\/kbd> to hide them. <kbd>Esc<\/kbd> exits fullscreen.<\/li>\n      <\/ol>\n      <p class=\"note\">If you use Safari and input selection or fullscreen behaves differently, open PULSE.html in a current version of Chrome, or use the local Python fallback. The browser must be running on the Mac that plays the music.<\/p>\n    <\/div>\n  <\/section>\n\n  <section aria-labelledby=\"live-title\">\n    <h2 id=\"live-title\">Verify the visuals use the live output<\/h2>\n    <ol>\n      <li>Play a track with a strong kick or bass line. Confirm <strong>Live audio<\/strong> appears, the Bass meter pulses, and the visual scene follows the music.<\/li>\n      <li><strong>Pause the music in the playback app.<\/strong> The audio meters should fall and the status should become <strong>Waiting for signal<\/strong>. Some ambient visual motion may remain; the input meters verify the audio.<\/li>\n      <li>While playback is paused, speak near the Mac. The meters should stay flat with BlackHole selected, confirming that room sound is not being captured.<\/li>\n      <li>Resume the track. The meters and music-driven motion should return immediately.<\/li>\n    <\/ol>\n    <p>Rendering and browser audio buffers introduce a small delay. This is live audio analysis, not a pre-rendered music video. Test your actual music player and speaker setup before the event.<\/p>\n  <\/section>\n\n  <section aria-labelledby=\"controls-title\">\n    <h2 id=\"controls-title\">Party controls<\/h2>\n    <table>\n      <thead><tr><th>Control<\/th><th>Action<\/th><\/tr><\/thead>\n      <tbody>\n        <tr><td><kbd>1<\/kbd>–<kbd>4<\/kbd><\/td><td>Switch between Orbit, Spectrum, Tunnel and Waveform.<\/td><\/tr>\n        <tr><td><kbd>F<\/kbd> / <kbd>Esc<\/kbd><\/td><td>Enter fullscreen / leave fullscreen.<\/td><\/tr>\n        <tr><td><kbd>H<\/kbd><\/td><td>Hide controls. Moving the pointer brings controls back.<\/td><\/tr>\n        <tr><td><kbd>Space<\/kbd><\/td><td>Freeze or resume the visuals. Music playback continues.<\/td><\/tr>\n        <tr><td>Audio source<\/td><td>Change the input device or disconnect audio capture.<\/td><\/tr>\n      <\/tbody>\n    <\/table>\n    <ul class=\"checklist\">\n      <li>Power adapter connected; sleep and screen saver adjusted for the event.<\/li>\n      <li>Speaker cable secure; Party Output selected; BlackHole 2ch selected in the app.<\/li>\n      <li>Pause/resume test passed; correct scene and fullscreen enabled. For a 4K screen or lower power use, choose <strong>Tune → Render quality → Balanced<\/strong>.<\/li>\n      <li>Do Not Disturb enabled if desired: system notifications routed to Party Output can also reach the speakers and visualizer.<\/li>\n    <\/ul>\n  <\/section>\n\n  <section aria-labelledby=\"trouble-title\">\n    <h2 id=\"trouble-title\">Troubleshooting<\/h2>\n    <h3>BlackHole is missing from the input menu<\/h3>\n    <p>First enable audio access so device names become available. Confirm BlackHole 2ch exists in Audio MIDI Setup. If it was installed while the browser was open, quit the browser fully with <kbd>⌘<\/kbd> <kbd>Q<\/kbd>, reopen PULSE.html, and grant permission again. Restart the Mac if the installer requested it.<\/p>\n    <h3>Permission is denied or the device list is empty<\/h3>\n    <p>Open <strong>System Settings → Privacy &amp; Security → Microphone<\/strong> and enable your browser. Quit and reopen it after changing this setting. In Chrome, allow Microphone for the local file or local address when prompted. If file permissions are unavailable, start the optional Python launcher and use its <code>http://127.0.0.1:…/PULSE.html<\/code> address. For that address, click the site controls icon, allow <strong>Microphone<\/strong>, and reload.<\/p>\n    <h3>Speakers work, but the meters stay silent<\/h3>\n    <p>Confirm the browser Input device is BlackHole 2ch, both devices are enabled in Party Output, and the system output is Party Output. Check any music app’s own output setting. Confirm BlackHole’s input/output levels are not muted in Audio MIDI Setup. Disconnect capture and reconnect it after changing devices. A player that bypasses the system output must be configured separately; some players may not support Multi-Output Devices.<\/p>\n    <h3>Meters move, but there is no sound from the speakers<\/h3>\n    <p>Make sure Party Output includes the actual wired headphone output and the cable is plugged in. Selecting BlackHole alone as system output produces no speaker sound. Check amplifier power and volume. For immediate recovery select <strong>External Headphones<\/strong> directly in <strong>System Settings → Sound → Output<\/strong>.<\/p>\n    <h3>Sound crackles, drifts, or changes after several minutes<\/h3>\n    <p>Set all devices to the same 48,000 Hz rate, choose the physical output as primary, and enable drift correction on BlackHole only. If you unplug the jack or change outputs, review the Multi-Output configuration and reconnect capture. Reduce other heavy applications if rendering stutters.<\/p>\n    <h3>The launcher does not open a browser<\/h3>\n    <p>Paste its printed address into Chrome. If Python is not found, locate your installed Python 3 interpreter or install it from <a href=\"https://www.python.org/downloads/macos/\" target=\"_blank\" rel=\"noopener noreferrer\">python.org<\/a>. This app needs Python 3; it does not need <code>pip install<\/code>. To choose another local port, run <code>python3 launch.py --port 9000<\/code>.<\/p>\n    <h3>Fullscreen or keys do not respond<\/h3>\n    <p>Click the visualizer page so it has keyboard focus and close any open dialog. Keyboard shortcuts do not run while typing in controls. Use the visible fullscreen button; on macOS the browser’s <strong>View → Enter Full Screen<\/strong> is an alternative.<\/p>\n  <\/section>\n\n  <section aria-labelledby=\"finish-title\">\n    <h2 id=\"finish-title\">After the event<\/h2>\n    <ol>\n      <li>Exit fullscreen, open <strong>Audio source<\/strong> and click <strong>Disconnect<\/strong>, or close the visualizer tab.<\/li>\n      <li>If you used the optional launcher, press <kbd>Control<\/kbd> <kbd>C<\/kbd> in its Terminal window to stop the local server.<\/li>\n      <li>In <strong>System Settings → Sound → Output<\/strong>, choose <strong>External Headphones<\/strong> or your usual output. Stopping the server does not change the Mac’s audio routing.<\/li>\n    <\/ol>\n    <p>PULSE.html runs locally in your browser. If used, the optional launcher listens only on <code>127.0.0.1<\/code>. Browser permissions and the Multi-Output Device can remain configured for next time.<\/p>\n  <\/section>\n\n  <footer>\n    <p>Driver documentation: <a href=\"https://github.com/ExistentialAudio/BlackHole\" target=\"_blank\" rel=\"noopener noreferrer\">official BlackHole repository<\/a> · <a href=\"https://github.com/ExistentialAudio/BlackHole/wiki/Multi-Output-Device\" target=\"_blank\" rel=\"noopener noreferrer\">Multi-Output Device guide<\/a>. BlackHole is a separate third-party driver; follow its installer instructions.<\/p>\n  <\/footer>\n<\/main>\n<\/body>\n<\/html>\n";
+// Live capture only. macOS system output must first be routed into a loopback
+// audio input (for example BlackHole 2ch); browsers cannot open the audio jack.
+const FFT_SIZE = 4096;
+const SPECTRUM_SIZE = 128;
+const WAVEFORM_SIZE = 512;
+const MIN_DB = -90;
+const MAX_DB = -15;
+// Web Audio's Blackman window has mean squared weight 0.3046. The FFT
+// contains the positive-frequency half, so this restores approximate RMS.
+const BLACKMAN_RMS_CORRECTION = Math.sqrt(2 / 0.3046);
+
+function amplitudeFromDb(db) {
+  return Number.isFinite(db) ? Math.pow(10, db / 20) : 0;
+}
+
+function spectrumLevel(db, minDb = MIN_DB, maxDb = MAX_DB) {
+  if (!Number.isFinite(db)) return 0;
+  return Math.max(0, Math.min(1, (db - minDb) / (maxDb - minDb)));
+}
+
+// An approximate 0..1 band RMS, calculated from FFT magnitudes rather than
+// averaging decibels. Boundaries are an inclusive start and exclusive end.
+function computeBandRms(frequencyDb, start, end) {
+  let power = 0;
+  for (let i = Math.max(1, start); i < Math.min(end, frequencyDb.length); i++) {
+    if (Number.isFinite(frequencyDb[i])) power += Math.pow(10, frequencyDb[i] / 10);
+  }
+  return Math.min(1, Math.sqrt(power) * BLACKMAN_RMS_CORRECTION);
+}
+
+function frequencyBandBounds(lowHz, highHz, sampleRate, fftSize = FFT_SIZE) {
+  const binHz = sampleRate / fftSize;
+  return [
+    Math.max(1, Math.ceil(lowHz / binHz)),
+    Math.min(fftSize / 2, Math.ceil(highHz / binHz)),
+  ];
+}
+
+class AudioEngine extends EventTarget {
+  constructor() {
+    super();
+    this.state = 'disconnected';
+    this.deviceLabel = '';
+    this.context = null;
+    this.stream = null;
+    this.source = null;
+    this.analyser = null;
+    this._attempt = 0;
+    this._trackListeners = [];
+    this._frequencyDb = new Float32Array(FFT_SIZE / 2);
+    this._timeData = new Float32Array(FFT_SIZE);
+    this._byteTimeData = new Uint8Array(FFT_SIZE);
+    this._previousAmplitude = new Float32Array(FFT_SIZE / 2);
+    this._spectrumStart = new Uint16Array(SPECTRUM_SIZE);
+    this._spectrumEnd = new Uint16Array(SPECTRUM_SIZE);
+    this._frame = {
+      spectrum: new Float32Array(SPECTRUM_SIZE),
+      waveform: new Float32Array(WAVEFORM_SIZE),
+      bass: 0, mid: 0, high: 0, rms: 0, peak: 0, beat: 0,
+      hasSignal: false, sampleRate: 0,
+    };
+    this._resetAnalysis();
+    this._mediaDevices = typeof navigator !== 'undefined' ? navigator.mediaDevices : null;
+    this._onDeviceChange = () => this.dispatchEvent(new Event('deviceschanged'));
+    this._mediaDevices?.addEventListener?.('devicechange', this._onDeviceChange);
+  }
+
+  _requireCapture() {
+    if (!this._mediaDevices?.getUserMedia || !this._mediaDevices?.enumerateDevices) {
+      throw new Error('Audio capture requires a supported browser on localhost or HTTPS.');
+    }
+  }
+
+  async permissionAndListDevices() {
+    this._requireCapture();
+    let permissionStream;
+    try {
+      // Request permission so that input names are visible, then release this
+      // stream. Device selection, not this permission stream, starts capture.
+      permissionStream = await this._mediaDevices.getUserMedia({ audio: true, video: false });
+      return (await this._mediaDevices.enumerateDevices()).filter(device => device.kind === 'audioinput');
+    } finally {
+      permissionStream?.getTracks().forEach(track => track.stop());
+    }
+  }
+
+  async connect(deviceId) {
+    const attempt = ++this._attempt;
+    this._cleanup();
+    if (typeof deviceId !== 'string' || !deviceId || deviceId === 'default' || deviceId === 'communications') {
+      const error = new Error('Select a specific audio input. To visualize Mac output, select BlackHole 2ch.');
+      this._setState('error', error);
+      throw error;
+    }
+    this._setState('connecting');
+    let capturedStream;
+    try {
+      this._requireCapture();
+      const AudioContextClass = globalThis.AudioContext || globalThis.webkitAudioContext;
+      if (!AudioContextClass) throw new Error('This browser does not support Web Audio.');
+      // Create and resume synchronously within the Connect button's gesture.
+      const context = new AudioContextClass();
+      this.context = context;
+      const resumePromise = context.resume();
+      // Observe rejection immediately while the permission prompt is pending.
+      resumePromise.catch(() => {});
+      capturedStream = await this._mediaDevices.getUserMedia({
+        audio: {
+          deviceId: { exact: deviceId },
+          echoCancellation: false,
+          noiseSuppression: false,
+          autoGainControl: false,
+          channelCount: { ideal: 2 },
+        },
+        video: false,
+      });
+      if (attempt !== this._attempt) {
+        capturedStream.getTracks().forEach(track => track.stop());
+        return;
+      }
+      this.stream = capturedStream;
+      await resumePromise;
+      if (attempt !== this._attempt) return;
+      const tracks = capturedStream.getAudioTracks();
+      if (!tracks.length || tracks[0].readyState !== 'live') {
+        throw new Error('The selected input did not provide a live audio track.');
+      }
+      const settings = tracks[0].getSettings?.();
+      if (settings?.deviceId && settings.deviceId !== deviceId) {
+        throw new Error('The browser opened a different input. Select the loopback device again.');
+      }
+      this.deviceLabel = tracks[0].label || 'Selected audio input';
+      this.source = context.createMediaStreamSource(capturedStream);
+      this.analyser = context.createAnalyser();
+      this.analyser.fftSize = FFT_SIZE;
+      this.analyser.smoothingTimeConstant = 0.65;
+      this.analyser.minDecibels = MIN_DB;
+      this.analyser.maxDecibels = MAX_DB;
+      this.source.connect(this.analyser);
+      // AnalyserNode works with its output unconnected. Do not connect this
+      // graph to destination: playback is already going to the party speakers.
+      this._prepareAnalysis(context.sampleRate);
+      for (const track of tracks) {
+        const onEnded = () => {
+          if (attempt === this._attempt) this.disconnect();
+        };
+        track.addEventListener('ended', onEnded);
+        this._trackListeners.push([track, onEnded]);
+      }
+      this._setState('live');
+    } catch (error) {
+      capturedStream?.getTracks().forEach(track => track.stop());
+      if (attempt !== this._attempt) return;
+      this._cleanup();
+      this._setState('error', error);
+      throw error;
+    }
+  }
+
+  disconnect() {
+    ++this._attempt;
+    this._cleanup();
+    this._setState('disconnected');
+  }
+
+  destroy() {
+    this.disconnect();
+    this._mediaDevices?.removeEventListener?.('devicechange', this._onDeviceChange);
+  }
+
+  _setState(state, error = null) {
+    this.state = state;
+    this.dispatchEvent(new CustomEvent('state', {
+      detail: { state, deviceLabel: this.deviceLabel, error },
+    }));
+  }
+
+  _cleanup() {
+    for (const [track, listener] of this._trackListeners) track.removeEventListener('ended', listener);
+    this._trackListeners.length = 0;
+    try { this.source?.disconnect(); } catch { /* Already disconnected. */ }
+    this.stream?.getTracks().forEach(track => track.stop());
+    if (this.context && this.context.state !== 'closed') this.context.close().catch(() => {});
+    this.source = null;
+    this.analyser = null;
+    this.stream = null;
+    this.context = null;
+    this.deviceLabel = '';
+    this._resetAnalysis();
+    this._clearFrame();
+  }
+
+  _resetAnalysis() {
+    this._previousAmplitude.fill(0);
+    this._hasPreviousFrame = false;
+    this._lastSampleTime = 0;
+    this._lastBeatTime = -Infinity;
+    this._fluxMean = 0;
+    this._fluxVariance = 0;
+    this._beat = 0;
+    this._signalUntil = 0;
+  }
+
+  _prepareAnalysis(sampleRate) {
+    this._frame.sampleRate = sampleRate;
+    this._bassBounds = frequencyBandBounds(25, 180, sampleRate);
+    this._midBounds = frequencyBandBounds(180, 2500, sampleRate);
+    this._highBounds = frequencyBandBounds(2500, 16000, sampleRate);
+    this._fluxBounds = frequencyBandBounds(25, 350, sampleRate);
+    const maxFrequency = Math.min(16000, sampleRate / 2);
+    const binHz = sampleRate / FFT_SIZE;
+    const ratio = Math.pow(maxFrequency / 20, 1 / (SPECTRUM_SIZE - 1));
+    const halfRatio = Math.sqrt(ratio);
+    for (let i = 0; i < SPECTRUM_SIZE; i++) {
+      const center = 20 * Math.pow(ratio, i);
+      let start = Math.max(1, Math.ceil(center / halfRatio / binHz));
+      let end = Math.min(FFT_SIZE / 2, Math.ceil(center * halfRatio / binHz));
+      // The lowest logarithmic bands may be narrower than an FFT bin.
+      if (end <= start) {
+        start = Math.max(1, Math.min(FFT_SIZE / 2 - 1, Math.round(center / binHz)));
+        end = start + 1;
+      }
+      this._spectrumStart[i] = start;
+      this._spectrumEnd[i] = end;
+    }
+  }
+
+  _clearFrame() {
+    const frame = this._frame;
+    frame.spectrum.fill(0);
+    frame.waveform.fill(0);
+    frame.bass = frame.mid = frame.high = frame.rms = frame.peak = frame.beat = 0;
+    frame.hasSignal = false;
+    frame.sampleRate = this.context?.sampleRate || 0;
+    return frame;
+  }
+
+  // The frame and its typed arrays are reused; copy them if retaining history.
+  sample() {
+    const analyser = this.analyser;
+    if (!analyser || this.state !== 'live' || this.context?.state !== 'running') {
+      this._resetAnalysis();
+      return this._clearFrame();
+    }
+    analyser.getFloatFrequencyData(this._frequencyDb);
+    if (analyser.getFloatTimeDomainData) {
+      analyser.getFloatTimeDomainData(this._timeData);
+    } else {
+      analyser.getByteTimeDomainData(this._byteTimeData);
+      for (let i = 0; i < FFT_SIZE; i++) this._timeData[i] = (this._byteTimeData[i] - 128) / 128;
+    }
+    const frame = this._frame;
+    let squareSum = 0;
+    let peak = 0;
+    const stride = FFT_SIZE / WAVEFORM_SIZE;
+    for (let i = 0; i < WAVEFORM_SIZE; i++) {
+      let chunkSum = 0;
+      for (let j = 0; j < stride; j++) {
+        const sample = this._timeData[i * stride + j];
+        squareSum += sample * sample;
+        peak = Math.max(peak, Math.abs(sample));
+        chunkSum += sample;
+      }
+      frame.waveform[i] = chunkSum / stride;
+    }
+    frame.rms = Math.min(1, Math.sqrt(squareSum / FFT_SIZE));
+    frame.peak = Math.min(1, peak);
+    frame.bass = computeBandRms(this._frequencyDb, this._bassBounds[0], this._bassBounds[1]);
+    frame.mid = computeBandRms(this._frequencyDb, this._midBounds[0], this._midBounds[1]);
+    frame.high = computeBandRms(this._frequencyDb, this._highBounds[0], this._highBounds[1]);
+    for (let i = 0; i < SPECTRUM_SIZE; i++) {
+      let maximumDb = -Infinity;
+      for (let bin = this._spectrumStart[i]; bin < this._spectrumEnd[i]; bin++) {
+        maximumDb = Math.max(maximumDb, this._frequencyDb[bin]);
+      }
+      frame.spectrum[i] = spectrumLevel(maximumDb);
+    }
+
+    const now = performance.now();
+    const gap = this._lastSampleTime ? (now - this._lastSampleTime) / 1000 : 1 / 60;
+    const dt = Math.max(1 / 240, Math.min(0.1, gap));
+    this._lastSampleTime = now;
+    if (gap > 0.5) this._hasPreviousFrame = false;
+    let fluxPower = 0;
+    for (let bin = this._fluxBounds[0]; bin < this._fluxBounds[1]; bin++) {
+      const amplitude = amplitudeFromDb(this._frequencyDb[bin]);
+      const rise = Math.max(0, amplitude - this._previousAmplitude[bin]);
+      fluxPower += rise * rise;
+      this._previousAmplitude[bin] = amplitude;
+    }
+    const flux = Math.sqrt(fluxPower) * BLACKMAN_RMS_CORRECTION;
+    this._beat *= Math.exp(-dt / 0.18);
+    if (this._hasPreviousFrame) {
+      const threshold = this._fluxMean + Math.max(0.004, Math.sqrt(this._fluxVariance) * 1.45);
+      if (flux > threshold && frame.bass > 0.015 && now - this._lastBeatTime >= 160) {
+        this._beat = Math.min(1, Math.max(0.25, flux / (threshold + 0.001) - 0.55));
+        this._lastBeatTime = now;
+      }
+      const alpha = 1 - Math.exp(-dt / 1.2);
+      const deviation = flux - this._fluxMean;
+      this._fluxMean += alpha * deviation;
+      this._fluxVariance += alpha * (deviation * deviation - this._fluxVariance);
+    } else {
+      this._hasPreviousFrame = true;
+      this._fluxMean = flux;
+    }
+    frame.beat = this._beat;
+    if (frame.rms > 0.0005 || frame.peak > 0.002) this._signalUntil = now + 200;
+    frame.hasSignal = now < this._signalUntil;
+    return frame;
+  }
+}
+
+const TAU = Math.PI * 2;
+const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
+const PALETTES = {
+  aurora: { primary: [202, 92, 255], secondary: [61, 224, 255], accent: [255, 66, 186], haze: [89, 31, 139] },
+  ember: { primary: [255, 104, 84], secondary: [255, 207, 93], accent: [255, 62, 134], haze: [140, 39, 48] },
+  glacier: { primary: [100, 165, 255], secondary: [109, 255, 226], accent: [134, 104, 255], haze: [32, 75, 126] },
+};
+const rgba = (color, alpha = 1) => `rgba(${color[0]},${color[1]},${color[2]},${clamp(alpha, 0, 1)})`;
+
+/** Canvas renderer. All audio energy comes from the supplied frame. */
+class Visualizer {
+  constructor(canvas) {
+    this.canvas = canvas;
+    this.ctx = canvas.getContext('2d', { alpha: false, desynchronized: true });
+    if (!this.ctx) throw new Error('This browser does not support the visualizer canvas.');
+    this.width = 1;
+    this.height = 1;
+    this.dpr = 1;
+    this.quality = 'high';
+    this.phase = 0;
+    this.lastTime = 0;
+    this.energy = 0;
+    this.bass = 0;
+    this.beat = 0;
+    this.spectrum = new Float32Array(128);
+    this.wave = new Float32Array(512);
+    // A seeded sky avoids allocating particles or introducing frame-to-frame noise.
+    let seed = 7021;
+    const random = () => {
+      seed = (seed * 16807) % 2147483647;
+      return (seed - 1) / 2147483646;
+    };
+    this.stars = Array.from({ length: 135 }, () => ({
+      x: random(), y: random(), size: random() * 1.15 + 0.3,
+      depth: random(), angle: random() * TAU, offset: random() * 20,
+    }));
+    this.resize();
+  }
+
+  resize() {
+    const rect = this.canvas.getBoundingClientRect();
+    this.width = Math.max(1, rect.width || this.canvas.clientWidth || window.innerWidth);
+    this.height = Math.max(1, rect.height || this.canvas.clientHeight || window.innerHeight);
+    this.dpr = Math.min(window.devicePixelRatio || 1, this.quality === 'balanced' ? 1.5 : 2);
+    const pixelWidth = Math.round(this.width * this.dpr);
+    const pixelHeight = Math.round(this.height * this.dpr);
+    if (this.canvas.width !== pixelWidth || this.canvas.height !== pixelHeight) {
+      this.canvas.width = pixelWidth;
+      this.canvas.height = pixelHeight;
+    }
+    this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+  }
+
+  render(frame = {}, options = {}, timestamp = performance.now()) {
+    const quality = options.quality === 'balanced' ? 'balanced' : 'high';
+    if (this.quality !== quality) {
+      this.quality = quality;
+      this.resize();
+    }
+    const dt = this.lastTime ? clamp((timestamp - this.lastTime) / 1000, 0, 0.06) : 1 / 60;
+    this.lastTime = timestamp;
+    this.phase += dt * clamp(Number(options.motion ?? 1), 0, 2);
+    const gain = clamp(Number(options.gain ?? 1.4), 0, 4);
+    const bassBoost = clamp(Number(options.bassBoost ?? 1.5), 0, 4);
+    const smooth = 1 - Math.exp(-dt * 16);
+    const source = frame.spectrum;
+    for (let i = 0; i < 128; i++) {
+      const value = clamp((source?.[i] || 0) * gain, 0, 1.6);
+      this.spectrum[i] += (value - this.spectrum[i]) * smooth;
+    }
+    const inputWave = frame.waveform;
+    for (let i = 0; i < 512; i++) this.wave[i] = clamp((inputWave?.[i] || 0) * gain, -1.7, 1.7);
+    this.energy += (clamp((frame.rms || 0) * gain, 0, 1.5) - this.energy) * smooth;
+    this.bass += (clamp((frame.bass || 0) * gain * bassBoost, 0, 1.8) - this.bass) * smooth;
+    this.beat = Math.max(clamp(frame.beat || 0, 0, 1), this.beat * Math.exp(-dt * 7));
+    this.palette = PALETTES[options.palette] || PALETTES.aurora;
+    this.label = String(options.label || 'PULSE').toUpperCase().slice(0, 28);
+    const ctx = this.ctx;
+    ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+    ctx.globalAlpha = 1;
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.shadowBlur = 0;
+    this.drawBackground();
+    ctx.save();
+    switch (options.scene) {
+      case 'spectrum': this.drawSpectrum(); break;
+      case 'tunnel': this.drawTunnel(); break;
+      case 'waveform': this.drawWaveform(); break;
+      default: this.drawOrbit(); break;
+    }
+    ctx.restore();
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.shadowBlur = 0;
+  }
+
+  glow(x, y, radius, color, alpha) {
+    const ctx = this.ctx;
+    const gradient = ctx.createRadialGradient(x, y, 0, x, y, Math.max(1, radius));
+    gradient.addColorStop(0, rgba(color, alpha));
+    gradient.addColorStop(0.42, rgba(color, alpha * 0.38));
+    gradient.addColorStop(1, rgba(color, 0));
+    ctx.fillStyle = gradient;
+    ctx.fillRect(x - radius, y - radius, radius * 2, radius * 2);
+  }
+
+  drawBackground() {
+    const { ctx, width: w, height: h, palette: p } = this;
+    ctx.fillStyle = '#060710';
+    ctx.fillRect(0, 0, w, h);
+    this.glow(w * 0.46, h * 0.47, Math.max(w, h) * 0.5, p.haze, 0.17 + this.energy * 0.09);
+    this.glow(w * 0.7, h * 0.38, h * 0.62, p.secondary, 0.022 + this.bass * 0.016);
+    this.glow(w * 0.29, h * 0.66, h * 0.52, p.accent, 0.04 + this.bass * 0.02);
+    ctx.save();
+    ctx.globalCompositeOperation = 'screen';
+    const count = this.quality === 'balanced' ? 85 : this.stars.length;
+    for (let i = 0; i < count; i++) {
+      const star = this.stars[i];
+      const x = ((star.x + Math.sin(this.phase * 0.018 + star.offset) * 0.005) % 1) * w;
+      const y = ((star.y - this.phase * (0.0007 + star.depth * 0.0013)) % 1 + 1) % 1 * h;
+      const twinkle = 0.5 + Math.sin(this.phase * 0.5 + star.offset) * 0.2;
+      ctx.fillStyle = rgba(i % 4 === 0 ? p.secondary : [180, 166, 228], twinkle * (0.14 + star.depth * 0.27));
+      ctx.beginPath();
+      ctx.arc(x, y, star.size, 0, TAU);
+      ctx.fill();
+    }
+    ctx.restore();
+    // A faint floor gives the floating visualization a stable visual anchor.
+    const floor = ctx.createLinearGradient(0, h * 0.84, 0, h);
+    floor.addColorStop(0, 'rgba(6,7,16,0)');
+    floor.addColorStop(1, 'rgba(2,3,9,.65)');
+    ctx.fillStyle = floor;
+    ctx.fillRect(0, h * 0.84, w, h * 0.16);
+  }
+
+  drawLabel(x, y, maxWidth, opacity = 0.9) {
+    const { ctx } = this;
+    const size = clamp(maxWidth * 0.16, 17, 35);
+    const letterSpacing = size * 0.22;
+    ctx.save();
+    ctx.font = `500 ${size}px Inter, -apple-system, BlinkMacSystemFont, sans-serif`;
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = `rgba(248,244,255,${opacity})`;
+    const widths = Array.from(this.label, char => ctx.measureText(char).width);
+    const totalWidth = widths.reduce((a, b) => a + b, 0) + letterSpacing * (widths.length - 1);
+    const scale = Math.min(1, maxWidth / Math.max(1, totalWidth));
+    ctx.translate(x, y);
+    ctx.scale(scale, scale);
+    let cursor = -totalWidth / 2;
+    Array.from(this.label).forEach((char, i) => {
+      ctx.fillText(char, cursor, 0);
+      cursor += widths[i] + letterSpacing;
+    });
+    ctx.restore();
+  }
+
+  drawOrbit() {
+    const { ctx, width: w, height: h, palette: p } = this;
+    const cx = w * 0.5;
+    const cy = h * 0.52;
+    const base = Math.min(w * 0.23, h * 0.278);
+    const r = base * (1 + this.bass * 0.055 + this.beat * 0.018);
+    const extent = base * (0.28 + this.bass * 0.04);
+    this.glow(cx, cy, base * 1.8, p.primary, 0.075 + this.bass * 0.06);
+    this.glow(cx - r * 0.68, cy + r * 0.15, r * 1.15, p.accent, 0.045 + this.beat * 0.06);
+    this.glow(cx + r * 0.76, cy - r * 0.18, r * 1.15, p.secondary, 0.03 + this.beat * 0.05);
+
+    ctx.save();
+    ctx.translate(cx, cy);
+    // Quiet, precise guide rings sit behind the living spectrum.
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = rgba(p.primary, 0.08);
+    ctx.beginPath(); ctx.arc(0, 0, r * 1.45, 0, TAU); ctx.stroke();
+    ctx.strokeStyle = rgba(p.secondary, 0.045);
+    ctx.beginPath(); ctx.arc(0, 0, r * 1.62, 0, TAU); ctx.stroke();
+    ctx.save();
+    ctx.rotate(this.phase * 0.035);
+    ctx.strokeStyle = rgba(p.primary, 0.24);
+    ctx.setLineDash([2, base * 0.135]);
+    ctx.beginPath(); ctx.arc(0, 0, r * 1.46, 0, TAU); ctx.stroke();
+    ctx.restore();
+
+    // Bars use a mirrored frequency ordering, with bass grounded at the bottom.
+    // Two batched strokes provide glow without one expensive shadow per bar.
+    const barWidth = Math.max(1.4, base * 0.009);
+    for (let group = 0; group < 2; group++) {
+      ctx.beginPath();
+      for (let i = group * 64; i < (group + 1) * 64; i++) {
+        const angle = (i / 128) * TAU - Math.PI / 2;
+        const distanceToBottom = Math.abs(i - 64) / 64;
+        const bin = Math.min(127, Math.floor(distanceToBottom * 127));
+        const energy = this.spectrum[bin];
+        const length = 2 + energy * extent * (0.55 + (1 - distanceToBottom) * 0.75);
+        const start = r + 11;
+        const cosine = Math.cos(angle);
+        const sine = Math.sin(angle);
+        ctx.moveTo(cosine * start, sine * start);
+        ctx.lineTo(cosine * (start + length), sine * (start + length));
+      }
+      ctx.strokeStyle = rgba(group === 0 ? p.secondary : p.accent, 0.62 + this.energy * 0.25);
+      ctx.lineWidth = barWidth;
+      ctx.lineCap = 'round';
+      ctx.shadowColor = rgba(group === 0 ? p.secondary : p.accent, 0.65);
+      ctx.shadowBlur = 7;
+      ctx.stroke();
+    }
+    ctx.shadowBlur = 0;
+
+    // The ring itself tracks both bass pressure and local spectral structure.
+    const ringPath = (layer) => {
+      ctx.beginPath();
+      const segments = this.quality === 'balanced' ? 192 : 256;
+      for (let i = 0; i <= segments; i++) {
+        const angle = i / segments * TAU;
+        const mirrored = Math.abs(Math.sin(angle / 2));
+        const bin = Math.min(127, Math.floor(mirrored * 127));
+        const contour = this.spectrum[bin] * base * (layer === 0 ? 0.046 : 0.033);
+        const ripple = Math.sin(angle * 3 + this.phase * 0.29) * base * 0.006
+          + Math.sin(angle * 7 - this.phase * 0.17) * base * 0.003;
+        const radius = r + contour + ripple + (layer === 0 ? 0 : -6 - this.bass * 2);
+        const x = Math.cos(angle) * radius;
+        const y = Math.sin(angle) * radius;
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.closePath();
+    };
+    const ringGradient = ctx.createLinearGradient(-r, r * 0.3, r, -r * 0.3);
+    ringGradient.addColorStop(0, rgba(p.accent));
+    ringGradient.addColorStop(0.46, rgba(p.primary));
+    ringGradient.addColorStop(1, rgba(p.secondary));
+    ringPath(0);
+    ctx.strokeStyle = ringGradient;
+    ctx.lineWidth = 5 + this.bass * 1.5;
+    ctx.shadowColor = rgba(p.primary, 0.85);
+    ctx.shadowBlur = 25 + this.beat * 12;
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+    ctx.lineWidth = 1.15;
+    ctx.strokeStyle = 'rgba(250,238,255,.9)';
+    ctx.stroke();
+    ringPath(1);
+    ctx.strokeStyle = rgba(p.secondary, 0.3 + this.energy * 0.15);
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // Fine inner orbit and four small markers add structure without fake meters.
+    ctx.strokeStyle = rgba(p.primary, 0.075);
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.arc(0, 0, r * 0.79, 0, TAU); ctx.stroke();
+    for (let i = 0; i < 4; i++) {
+      const a = i * Math.PI / 2 + this.phase * 0.05;
+      ctx.fillStyle = rgba(i % 2 ? p.accent : p.secondary, 0.7);
+      ctx.beginPath(); ctx.arc(Math.cos(a) * r * 1.45, Math.sin(a) * r * 1.45, 1.8, 0, TAU); ctx.fill();
+    }
+    ctx.restore();
+    this.drawLabel(cx, cy, r * 1.33);
+  }
+
+  drawSpectrum() {
+    const { ctx, width: w, height: h, palette: p } = this;
+    const count = this.quality === 'balanced' ? 96 : 128;
+    const plotWidth = Math.min(w * 0.76, h * 1.42);
+    const left = (w - plotWidth) / 2;
+    const floor = h * 0.66;
+    const maximum = Math.min(h * 0.37, w * 0.22);
+    const gap = plotWidth / count;
+    const barWidth = Math.max(1, gap * 0.58);
+    this.drawLabel(w * 0.5, h * 0.27, Math.min(w * 0.3, 310));
+    this.glow(w * 0.37, floor, h * 0.5, p.accent, 0.045 + this.bass * 0.075);
+    this.glow(w * 0.68, floor, h * 0.45, p.secondary, 0.035 + this.energy * 0.055);
+    ctx.fillStyle = rgba(p.primary, 0.14);
+    ctx.fillRect(left - 10, floor, plotWidth + 20, 1);
+    for (let i = 0; i < count; i++) {
+      const bin = Math.floor(i * 128 / count);
+      const level = Math.pow(clamp(this.spectrum[bin], 0, 1.6), 0.86);
+      const barHeight = Math.max(2, level * maximum);
+      const x = left + i * gap;
+      const t = i / (count - 1);
+      const color = p.accent.map((v, c) => Math.round(v + (p.secondary[c] - v) * t));
+      const gradient = ctx.createLinearGradient(0, floor - barHeight, 0, floor);
+      gradient.addColorStop(0, rgba(color, 0.98));
+      gradient.addColorStop(1, rgba(p.primary, 0.35));
+      ctx.fillStyle = gradient;
+      ctx.fillRect(x, floor - barHeight, barWidth, barHeight);
+      ctx.fillStyle = rgba([241, 230, 255], 0.55 + level * 0.25);
+      ctx.fillRect(x, floor - barHeight, barWidth, 1.5);
+      const reflection = Math.min(barHeight * 0.32, h * 0.15);
+      const reflectionGradient = ctx.createLinearGradient(0, floor + 5, 0, floor + 5 + reflection);
+      reflectionGradient.addColorStop(0, rgba(color, 0.16));
+      reflectionGradient.addColorStop(1, rgba(color, 0));
+      ctx.fillStyle = reflectionGradient;
+      ctx.fillRect(x, floor + 5, barWidth, reflection);
+    }
+    // Four unobtrusive guide lines keep the scene readable at a distance.
+    ctx.strokeStyle = rgba(p.primary, 0.035);
+    ctx.lineWidth = 1;
+    for (let i = 1; i <= 4; i++) {
+      const y = floor - maximum * i / 4;
+      ctx.beginPath(); ctx.moveTo(left, y); ctx.lineTo(left + plotWidth, y); ctx.stroke();
+    }
+  }
+
+  drawTunnel() {
+    const { ctx, width: w, height: h, palette: p } = this;
+    const cx = w * 0.5;
+    const cy = h * 0.52;
+    const maxRadius = Math.hypot(w, h) * 0.54;
+    this.glow(cx, cy, h * 0.62, p.primary, 0.07 + this.bass * 0.09);
+    ctx.save();
+    ctx.translate(cx, cy);
+    const rings = this.quality === 'balanced' ? 17 : 23;
+    for (let ring = rings - 1; ring >= 0; ring--) {
+      const progress = (ring + (this.phase * 0.17 % 1)) / rings;
+      const radius = 30 + Math.pow(progress, 1.62) * maxRadius * (1 + this.bass * 0.045);
+      const opacity = (0.14 + Math.sin(progress * Math.PI) * 0.56) * Math.min(progress * 5, 1);
+      const color = ring % 3 === 0 ? p.secondary : ring % 3 === 1 ? p.primary : p.accent;
+      const rotation = Math.sin(this.phase * 0.12) * 0.06 + progress * 0.1;
+      ctx.save();
+      ctx.rotate(rotation);
+      ctx.beginPath();
+      const points = this.quality === 'balanced' ? 80 : 128;
+      for (let i = 0; i <= points; i++) {
+        const angle = i / points * TAU;
+        const bin = Math.floor(Math.abs(Math.sin(angle * 0.5)) * 127);
+        const distortion = Math.sin(angle * 5 + this.phase * 0.4 + progress * 5) * (0.011 + this.bass * 0.022)
+          + this.spectrum[bin] * 0.035;
+        const radiusAtAngle = radius * (1 + distortion);
+        const x = Math.cos(angle) * radiusAtAngle;
+        const y = Math.sin(angle) * radiusAtAngle * (0.75 + this.bass * 0.025);
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.closePath();
+      ctx.lineWidth = 0.6 + progress * 2 + this.beat * progress;
+      ctx.strokeStyle = rgba(color, opacity);
+      if (ring % 5 === 0) { ctx.shadowColor = rgba(color, 0.55); ctx.shadowBlur = 10; }
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+      ctx.restore();
+    }
+    ctx.restore();
+    // Clear space in the vanishing point preserves legibility during big hits.
+    this.glow(cx, cy, Math.min(w, h) * 0.15, [6, 7, 16], 0.93);
+    this.drawLabel(cx, cy, Math.min(w * 0.3, h * 0.29), 0.88);
+  }
+
+  drawWaveform() {
+    const { ctx, width: w, height: h, palette: p } = this;
+    const span = Math.min(w * 0.8, h * 1.6);
+    const left = (w - span) / 2;
+    const cy = h * 0.54;
+    const amplitude = Math.min(h * 0.145, w * 0.12) * (1 + this.bass * 0.12);
+    this.drawLabel(w * 0.5, h * 0.27, Math.min(w * 0.3, 310));
+    this.glow(w * 0.42, cy, h * 0.49, p.accent, 0.06 + this.bass * 0.04);
+    this.glow(w * 0.62, cy, h * 0.49, p.secondary, 0.04 + this.energy * 0.06);
+    ctx.strokeStyle = rgba(p.primary, 0.12);
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(left, cy); ctx.lineTo(left + span, cy); ctx.stroke();
+    // Every trace is the supplied time-domain waveform, with different scale and offset.
+    for (let layer = 2; layer >= 0; layer--) {
+      const color = layer === 0 ? p.secondary : layer === 1 ? p.accent : p.primary;
+      const offset = (layer - 1) * (h * 0.038);
+      ctx.beginPath();
+      for (let i = 0; i < 512; i++) {
+        const x = left + i / 511 * span;
+        const taper = Math.pow(Math.sin(i / 511 * Math.PI), 0.55);
+        const y = cy + offset + this.wave[i] * amplitude * (1 - layer * 0.19) * taper;
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.strokeStyle = rgba(color, layer === 0 ? 0.95 : 0.53);
+      ctx.lineWidth = layer === 0 ? 1.8 : 1.2;
+      ctx.shadowColor = rgba(color, 0.75);
+      ctx.shadowBlur = layer === 0 ? 14 : 7;
+      ctx.stroke();
+    }
+    ctx.shadowBlur = 0;
+    const baseline = h * 0.77;
+    const bars = 80;
+    const gap = span / bars;
+    ctx.fillStyle = rgba(p.primary, 0.13);
+    ctx.fillRect(left, baseline, span, 1);
+    for (let i = 0; i < bars; i++) {
+      const bin = Math.floor(i / bars * 128);
+      const height = Math.max(1, this.spectrum[bin] * h * 0.085);
+      ctx.fillStyle = rgba(i < bars * 0.5 ? p.accent : p.secondary, 0.35 + this.spectrum[bin] * 0.35);
+      ctx.fillRect(left + i * gap, baseline - height, Math.max(1, gap * 0.48), height);
+    }
+  }
+}
+
+
+const $ = id => document.getElementById(id);
+const engine = new AudioEngine();
+const visualizer = new Visualizer($('visualizer'));
+const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const defaults = { scene:'orbit', palette:'aurora', gain:1.4, bassBoost:1.5, motion:reducedMotion ? 0 : 1, quality:'high', label:'PULSE' };
+let settings = { ...defaults };
+try {
+  const stored = JSON.parse(localStorage.getItem('pulse.settings') || '{}');
+  for (const key of ['scene','palette','quality']) {
+    const allowed = { scene:['orbit','spectrum','tunnel','waveform'], palette:['aurora','ember','glacier'], quality:['high','balanced'] }[key];
+    if (allowed.includes(stored[key])) settings[key] = stored[key];
+  }
+  for (const [key,min,max] of [['gain',.4,3],['bassBoost',.5,3],['motion',0,1]]) if (typeof stored[key] === 'number' && Number.isFinite(stored[key])) settings[key] = Math.max(min,Math.min(max,stored[key]));
+  if (typeof stored.label === 'string') settings.label = stored.label.slice(0,24);
+} catch { /* Storage may be disabled for local HTML. */ }
+if (reducedMotion) settings.motion = 0;
+let demo = true, frozen = false, controlsHidden = false, hideTimer, toastTimer;
+let lastRender = 0, lastMeter = 0, lastSignal = false, connectionTime = 0;
+const emptyFrame = { spectrum:new Float32Array(128),waveform:new Float32Array(512),bass:0,mid:0,high:0,rms:0,peak:0,beat:0,hasSignal:false };
+const demoFrame = { ...emptyFrame, spectrum:new Float32Array(128), waveform:new Float32Array(512) };
+const sceneInfo = {
+  orbit:['Orbital spectrum','Every frequency. One beautiful orbit.','01'],
+  spectrum:['Neon spectrum','A landscape shaped by the sound.','02'],
+  tunnel:['Infinite tunnel','Go deeper into the beat.','03'],
+  waveform:['Electric waveform','The shape of sound, in real time.','04']
+};
+function saveSettings() { try { localStorage.setItem('pulse.settings',JSON.stringify(settings)); } catch {} }
+function syncSettings() {
+  for(const key of ['gain','bassBoost','motion','palette','quality','label']) $(key).value = settings[key];
+  $('gainValue').textContent = settings.gain.toFixed(1)+'×';
+  $('bassBoostValue').textContent = settings.bassBoost.toFixed(1)+'×';
+  $('motionValue').textContent = Math.round(settings.motion*100)+'%';
+  setScene(settings.scene,false);
+}
+function setScene(scene,save=true) {
+  settings.scene=scene;
+  const [title,description,index] = sceneInfo[scene];
+  $('sceneTitle').textContent=title; $('sceneDescription').textContent=description; $('sceneNumber').textContent=index;
+  document.querySelectorAll('[data-scene]').forEach(b=>{const active=b.dataset.scene===scene;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active));});
+  if(save)saveSettings();
+}
+function toast(message) { $('toast').textContent=message; $('toast').hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').hidden=true,5000); }
+function setStatus(text,type) { $('statusText').textContent=text;$('status').className='status '+type; }
+function updateSource() {
+  const live=engine.state==='live';
+  $('audioButton').querySelector('span').textContent=live?'Audio source':'Connect audio';
+  $('demoButton').setAttribute('aria-pressed',String(demo));
+  $('demoButton').querySelector('span:last-child').textContent=demo?'Preview on':'Preview off';
+  $('disconnectAudio').hidden=!live;
+  if(live) {
+    const loopback=/blackhole|loopback|soundflower/i.test(engine.deviceLabel);
+    $('sourceTitle').textContent=engine.deviceLabel;
+    $('sourceDetail').textContent=loopback?'Listening to your Mac’s routed live audio.':'Live input · select BlackHole for Mac system audio.';
+    $('cardConnect').setAttribute('aria-label','Change audio source');
+    $('meterNotice').textContent='LIVE INPUT · NO AUDIO PLAYBACK';
+    setStatus(lastSignal?'Live audio':'Waiting for signal',lastSignal?'live':'waiting');
+  } else {
+    $('sourceTitle').textContent=demo?'Your music, amplified visually.':'Ready for your music.';
+    $('sourceDetail').textContent='Connect BlackHole to follow your Mac’s live audio.';
+    $('cardConnect').setAttribute('aria-label','Connect live audio');
+    $('meterNotice').textContent=demo?'SIMULATED PREVIEW':'NO LIVE AUDIO CONNECTED';
+    setStatus(demo?'Preview · no live audio':'No audio connected',demo?'preview':'waiting');
+  }
+}
+function generatePreview(t) {
+  const beatPhase = (t/1000 * 1.9)%1;
+  const kick=Math.exp(-beatPhase*8);
+  demoFrame.bass=.17+kick*.31;demoFrame.mid=.17+Math.sin(t*.0008)*.07;demoFrame.high=.13+kick*.12;
+  demoFrame.rms=.19+kick*.13;demoFrame.beat=kick*.7;demoFrame.peak=.55;demoFrame.hasSignal=false;
+  for(let i=0;i<128;i++) { const pos=i/127; demoFrame.spectrum[i]=Math.max(0,.15+.3*Math.exp(-pos*2)+.11*Math.sin(i*.22+t*.0008)+.08*Math.sin(i*.73-t*.001)+kick*.18*(1-pos)); }
+  for(let i=0;i<512;i++) demoFrame.waveform[i]=Math.sin(i*.07+t*.004)*(.2+kick*.15)+Math.sin(i*.17-t*.002)*.07;
+  return demoFrame;
+}
+function tick(time) {
+  requestAnimationFrame(tick);
+  const interval=settings.quality==='balanced'?1000/30:1000/60;
+  if(document.hidden || time-lastRender<interval-1)return;
+  lastRender=time;
+  const frame=engine.state==='live'?engine.sample():(demo?generatePreview(time):emptyFrame);
+  if(!frozen)visualizer.render(frame,{...settings,demo},time);
+  if(time-lastMeter>100) {
+    lastMeter=time;
+    for(const key of ['bass','mid','high']) $(key+'Meter').style.width=Math.min(100,Math.sqrt(frame[key])*130)+'%';
+    if(engine.state==='live' && lastSignal!==frame.hasSignal) {
+      lastSignal=frame.hasSignal;
+      setStatus(lastSignal?'Live audio':'Waiting for signal',lastSignal?'live':'waiting');
+    }
+    if(engine.state==='live' && !lastSignal && time-connectionTime>8000) {
+      $('sourceDetail').textContent='No signal · check Multi-Output routing and play music.';
+    } else if(engine.state==='live' && lastSignal) {
+      $('sourceDetail').textContent=/blackhole|loopback|soundflower/i.test(engine.deviceLabel)?'Listening to your Mac’s routed live audio.':'Live input · select BlackHole for Mac system audio.';
+    }
+  }
+}
+function showAudio() { showControls();$('audioError').hidden=true;if(!$('audioDialog').open)$('audioDialog').showModal(); }
+function explainError(error) {
+  if(error?.name==='NotAllowedError')return 'Audio access was blocked. Allow microphone access for this page and your browser in System Settings → Privacy & Security → Microphone. Then try again. If this is a local file, use the included Python launcher.';
+  if(error?.name==='NotFoundError')return 'No audio inputs found. Install BlackHole 2ch, restart the browser, and refresh the device list.';
+  if(error?.name==='OverconstrainedError')return 'That input is no longer available. Refresh the list and select BlackHole 2ch again.';
+  if(error?.name==='NotReadableError')return 'The audio input could not be opened. Check that BlackHole is available in Audio MIDI Setup and restart the browser.';
+  return error?.message || 'Audio could not be connected. Use the setup guide to check permissions and routing.';
+}
+function showError(error) { $('audioError').textContent=explainError(error);$('audioError').hidden=false; }
+let devicesBusy=false;
+async function refreshDevices() {
+  if(devicesBusy)return;
+  devicesBusy=true;$('permissionButton').disabled=true;$('refreshDevices').disabled=true;$('audioError').hidden=true;
+  try {
+    const devices=(await engine.permissionAndListDevices()).filter(d=>d.deviceId && d.deviceId!=='default' && d.deviceId!=='communications');
+    const old=$('device').value;
+    $('device').replaceChildren();
+    const blank=document.createElement('option');blank.value='';blank.textContent='Choose an audio input…';$('device').append(blank);
+    for(const device of devices) { const option=document.createElement('option');option.value=device.deviceId;option.textContent=device.label||'Audio input';$('device').append(option); }
+    const loopback=devices.find(d=>/BlackHole.*2ch/i.test(d.label)) || devices.find(d=>/blackhole|loopback|soundflower/i.test(d.label));
+    $('device').value=devices.some(d=>d.deviceId===old)?old:(loopback?.deviceId||'');
+    $('permissionStep').hidden=true;$('deviceStep').hidden=false;
+    updateDeviceHint();
+    if(!devices.length)showError({name:'NotFoundError'});
+  }catch(error){showError(error);}finally { devicesBusy=false;$('permissionButton').disabled=false;$('refreshDevices').disabled=false; }
+}
+function updateDeviceHint() {
+  const label=$('device').selectedOptions[0]?.textContent||'';
+  const isLoopback=/blackhole|loopback|soundflower/i.test(label);
+  $('deviceHint').textContent=!$('device').value?'Select BlackHole 2ch after completing the Mac setup. A built-in microphone captures the room, rather than the Mac’s output.':isLoopback?'Loopback input selected. Set your Mac’s output to the Multi-Output Device, then play music.':'This is a live input. Choose BlackHole 2ch to follow the Mac’s audio output through the headphone jack.';
+  $('startAudio').disabled=!$('device').value;
+}
+async function startAudio() {
+  $('startAudio').disabled=true;$('audioError').hidden=true;frozen=false;document.body.classList.remove('frozen');
+  try { await engine.connect($('device').value); if(engine.state==='live') { $('audioDialog').close();toast('Live input connected. Play music to see the bass and spectrum react.'); } }
+  catch(error){showError(error);}finally{updateDeviceHint();}
+}
+engine.addEventListener('state',event=>{
+  const {state,error}=event.detail;
+  if(state==='connecting'){demo=false;setStatus('Connecting…','waiting');}
+  if(state==='live'){demo=false;lastSignal=false;connectionTime=performance.now();}
+  if(state==='error'){demo=false;showError(error);toast(explainError(error));}
+  if(state==='disconnected'){demo=false;lastSignal=false;toast('Audio disconnected. Reconnect to resume live visuals.');}
+  if(state!=='connecting')updateSource();
+});
+engine.addEventListener('deviceschanged',()=>{if($('audioDialog').open)toast('Audio inputs changed. Use Refresh to update the list.');});
+function showControls() { clearTimeout(hideTimer);controlsHidden=false;document.body.classList.remove('controls-hidden'); scheduleHide(); }
+function hideControls() { if($('audioDialog').open)return;controlsHidden=true;document.body.classList.add('controls-hidden');$('tunePanel').hidden=true;$('tuneButton').setAttribute('aria-expanded','false'); }
+function scheduleHide() { clearTimeout(hideTimer);if(document.fullscreenElement && !$('audioDialog').open && $('tunePanel').hidden)hideTimer=setTimeout(hideControls,4500); }
+async function toggleFullscreen() {
+  try { if(document.fullscreenElement)await document.exitFullscreen();else if(document.documentElement.requestFullscreen)await document.documentElement.requestFullscreen();else toast('Use your browser’s View → Enter Full Screen command.'); }
+  catch { toast('Fullscreen was blocked. Use your browser’s View → Enter Full Screen command.'); }
+}
+function openSetup(event) { event?.preventDefault(); if(typeof SETUP_HTML!=='undefined') { const blob=new Blob([SETUP_HTML],{type:'text/html'});const url=URL.createObjectURL(blob);window.open(url,'_blank','noopener');setTimeout(()=>URL.revokeObjectURL(url),60000); }else window.open('README.html','_blank','noopener'); }
+$('setupButton').addEventListener('click',openSetup);
+document.querySelector('.setup-note a').addEventListener('click',openSetup);
+$('audioButton').addEventListener('click',showAudio);$('cardConnect').addEventListener('click',showAudio);
+$('closeAudio').addEventListener('click',()=>$('audioDialog').close());
+$('audioDialog').addEventListener('close',scheduleHide);
+$('audioDialog').addEventListener('click',event=>{if(event.target===$('audioDialog')){const r=$('audioDialog').getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)$('audioDialog').close();}});
+$('permissionButton').addEventListener('click',refreshDevices);$('refreshDevices').addEventListener('click',refreshDevices);$('device').addEventListener('change',updateDeviceHint);$('startAudio').addEventListener('click',startAudio);
+$('disconnectAudio').addEventListener('click',()=>{engine.disconnect();$('audioDialog').close();});
+$('demoButton').addEventListener('click',()=>{if(engine.state==='live'||engine.state==='connecting'){toast('Disconnect live audio in Audio source before switching to a simulated preview.');return;}demo=!demo;updateSource();});
+$('fullscreenButton').addEventListener('click',toggleFullscreen);
+document.addEventListener('fullscreenchange',()=>{$('fullscreenButton').querySelector('span').textContent=document.fullscreenElement?'Exit fullscreen':'Enter fullscreen';visualizer.resize();showControls();});
+$('hideButton').addEventListener('click',hideControls);
+document.addEventListener('pointermove',event=>{if(event.movementX||event.movementY)showControls();});
+document.addEventListener('pointerdown',()=>{if(controlsHidden)showControls();});
+$('tuneButton').addEventListener('click',()=>{const hidden=$('tunePanel').hidden;$('tunePanel').hidden=!hidden;$('tuneButton').setAttribute('aria-expanded',String(hidden));clearTimeout(hideTimer);if(!hidden)scheduleHide();});
+$('closeTune').addEventListener('click',()=>{$('tunePanel').hidden=true;$('tuneButton').setAttribute('aria-expanded','false');scheduleHide();});
+for(const key of ['gain','bassBoost','motion','palette','quality','label'])$(key).addEventListener('input',()=>{settings[key]=['gain','bassBoost','motion'].includes(key)?Number($(key).value):$(key).value;syncSettings();saveSettings();});
+$('resetSettings').addEventListener('click',()=>{settings={...defaults};syncSettings();saveSettings();toast('Visual settings reset.');});
+document.querySelectorAll('[data-scene]').forEach(button=>button.addEventListener('click',()=>setScene(button.dataset.scene)));
+document.addEventListener('keydown',event=>{
+  if(event.ctrlKey||event.altKey||event.metaKey||/INPUT|SELECT|TEXTAREA/.test(event.target.tagName)||$('audioDialog').open)return;
+  const key=event.key.toLowerCase();
+  if(['1','2','3','4'].includes(key))setScene(['orbit','spectrum','tunnel','waveform'][Number(key)-1]);
+  else if(key==='f'){event.preventDefault();toggleFullscreen();}
+  else if(key==='h'){event.preventDefault();if(controlsHidden)showControls();else hideControls();}
+  else if(event.code==='Space'){event.preventDefault();frozen=!frozen;document.body.classList.toggle('frozen',frozen);toast(frozen?'Visuals frozen. Press Space to resume.':'Visuals resumed.');}
+  else if(key==='escape')showControls();
+});
+window.addEventListener('resize',()=>visualizer.resize());
+window.addEventListener('pagehide',()=>engine.destroy());
+document.addEventListener('visibilitychange',()=>{lastRender=0;});
+syncSettings();updateSource();requestAnimationFrame(tick);
+
+})();
+</script>
+</body>
+</html>
